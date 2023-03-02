@@ -88,7 +88,7 @@ def min_max_num(*args) :
 print('Найменше число : ',min_max_num(1, 2, 6, 9, 4, 1, 15))
 # - створити функцію яка повертає найбільше число з ліста
 # - створити функцію яка повертає найменьше число з ліста
-arr_of_nums = [1,4,7,45,23,43,7,55]
+arr_of_nums = [1,4,7,45,23,43,7,55,4,7]
 def min_max_num_list (list) :
     min_num= min(list)
     max_num= max(list)
@@ -111,19 +111,62 @@ print(calc_el_list(arr_of_nums))
 #   - знайти мін число
 #   - видалити усі дублікати
 #   - замінити кожне 4-те значення на 'X'
-
 list = [22, 3,5,2,10,2,-23, 8,23,5]
 
 def actions_of_list (list) :
     min_num = min(list)
     dub_of  = set(list)
+    return (min_num,dub_of)
+
+def change_list (list) :
     for i in range(3,len(list),4) :
         list[i]='X'
-
-    return (min_num,dub_of,list)
+    return list
 
 print(actions_of_list(list))
 
 # 2) вивести на екран пустий квадрат з "*" сторона якого вказана як агрумент функції
+def square (size) :
+    for pix in range(1,size+1) :
+        if pix==1 or pix == size : print('*'*size)
+        else : print ('*' + ' '*(size-2) + '*')
+
+square(5)
+
 # 3) вывести табличку множення за допомогою цикла while
+def multiplication_table() :
+    count=1
+    while count in range(1,10) :
+        count2=1
+        while count2 in range(1,10) :
+            print(count*count2,end=' ')
+            count2+=1
+        print()
+        count+=1
+
 # 4) переробити це завдання під меню
+
+choice=int
+while choice != 6 :
+    print('1) Знайти min число \n'
+          '2) Видалити дублікати \n'
+          "3) Змінити кожне 4-те значення на 'X' \n"
+          '4) Вивести на екран квадрат з "*" сторону якого необхідно вказати  \n'
+          '5) Сформувати табличку множення\n'
+          '6) Вихід ')
+
+    choice=int(input('Введіть Ваш вибір : '))
+    print()
+
+    if choice   == 1:
+        print('Мінімальне значення масиву :',min_max_num_list(arr_of_nums)[0],'\n')
+    elif choice == 2:
+        print('Масив без дублікатів : ',actions_of_list(arr_of_nums)[1],'\n')
+    elif choice == 3:
+        print("Кожне 4-те значення змінене на 'X' :", change_list(arr_of_nums),'\n')
+    elif choice == 4:
+        print('Надрукований квадрат')
+        square(5)
+    elif choice == 5:
+        print('Табличка множення :')
+        multiplication_table()
