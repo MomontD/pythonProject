@@ -139,7 +139,7 @@ def multiplication_table() :
     while count in range(1,10) :
         count2=1
         while count2 in range(1,10) :
-            print(count*count2,end=' ')
+            print(f'{(count*count2):3}',end=' ')
             count2+=1
         print()
         count+=1
