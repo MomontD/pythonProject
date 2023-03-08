@@ -254,6 +254,7 @@ def функції :
                                       *******************
                                       *******************
 
+
 ########################################################################################################
 Область видимості :
 
@@ -386,3 +387,335 @@ Lambda - схожа на стрілочну ф-ю в js. Може приймат
         print(user_id)
 
     check('sss')
+
+#############################################################################################################
+Clas / КЛАСИ :
+
+    class User:
+
+        count = 0                        => змінна класу , доступна всім підкласам
+
+        __slots__ = ('_name', 'age')     => вказує які поля будуть в класі , після декларації - додати інші поля не можливо
+                                            + економить память
+        def __init__(self, name, age):
+            self.__name = name           => приватна змінна (__name) - доступна тільки в області видимості декларованого класу.
+            self._age = age              =>  приватна змінна (_name) - доступна в області видимості всіх підкласів і батьківсткого класу
+
+        def __str__(self):               => "magic" метод , вказує яке буде відображення обєкту при виводі
+            return f'{self.__name}, {self._age}'
+            або    f'{self.__dict__}'    => представлення класу у форматі dict
+
+    user = User('Max', 15)     => name:Max, age : 15   => екземпляр класу User
+    user2 = User('Kira', 18)   => name:Kira, age : 18  => екземпляр класу User
+
+    print(user.count)           => змінна батьківського класу відображається у всіх класах
+    print(user2.count)          => змінна батьківського класу відображається у всіх класах
+    print(user._name)           => звернення до приватних змінних
+    print(user._User.__name)    => звернення до приватних змінних
+    User.count = 16             => звернення до змінної батьківського класу відбувається через User
+    user.count = 20             => якщо прописати так - створимо нове поле count в класі user.
+                                   Якщо буде прописаний __slots__ - поле не створиться і видасть помилку
+    del user.name               => Видалення поля в екземплярі класу user
+    -----------------------------------------------------------------------------------------------------------
+    НАСЛІДУВАННЯ класів :
+
+    class User2(User):                  => User2 наслідує клас User
+    def __init__(self, name, age):
+        super().__init__(name, age)     => даний метод вказує що у класі User2 будуть ті самі поля що в User.
+
+    def get_age(self):
+        print(self._age)
+
+    user2 = User2('Kira', 18)
+    user2.get_age()
+    --------------------------------------------------------------------------------------------------------------
+    НАСЛІДУВАННЯ декількох класів : ВАЖЛИВО! Налідування класів можливе тільки при умові : 1 клас з методом __init__
+                                    2. Всі наступні класи тільки з функціями без ініціалізації класу.
+                                    Якщо в наслідуванні будуть класи з  __init__   - помилка.
+    class Car:
+        def __init__(self, brand):
+            self.brand = brand
+
+    class Greeting:
+        def greeting(self):
+            print(self.msg)
+
+    class MyCar(Car, Greeting):                 => MyCar наслідує класи Car, Greeting
+        def __init__(self, brand, seats):       => brand вказується як вхідний агрументи з класу Car, seats - як аргумент поточного класу MyCar
+            super().__init__(brand)             => проходить наслідування ініціалізації по класу Car
+            self.seats = seats
+
+    car = MyCar('BMW', 5)             => 'BMW', 5
+    car.greeting('Hello')             => 'Hello'
+    print(car.brand)
+    print(car.seats)
+    ------------------------------------------------------------------------------------------------------------
+    ІНКАПСУЛЯЦІЯ / ЗАМИКАННЯ / Property
+    class User:
+        def __init__(self, name):
+            self.__name = name
+
+        def __get_name(self):           =>  створюємо приватну ф-ю , доступну тільки в цьому класі
+            return self.__name
+
+        def __set_name(self, new_name): =>  створюємо приватну ф-ю , доступну тільки в цьому класі
+            if new_name != 'Thir':
+            self.__name = new_name
+
+        def __del_name(self):           =>  створюємо приватну ф-ю , доступну тільки в цьому класі
+            del self.__name
+
+        name = property(fset=__set_na me, fget=__get_name, fdel=__del_name)
+
+    АБО ОСЬ ТАК :
+
+    class User:
+        def __init__(self, name):
+            self.__name = name
+
+        @property
+        def name(self):
+            return self.__name
+
+        @name.setter
+        def name(self, new_name):
+            if new_name != 'Thir':
+                self.__name = new_name
+
+        @name.deleter
+        def name(self):
+            del self.__name
+
+    Приклади виклику :
+    user = User('Max')
+    print(user.name)
+    user.name = 'Kira'
+    print(user.name)
+    del user.name
+    print(user.name)
+    print(user.get_name())
+    user.set_name('Kira')
+    print(user.get_name())
+    user.del_name()
+    print(user.get_name())
+    -------------------------------------------------------------------------------------------------------------
+    АБСТРАКТНІ КЛАСИ. Використовуються для контролю наслідувань всіх ф-й та методів. Тобто , якщо ми наслідуємо
+    ф-ї з іншого класу , ми їх маємо прописати! Інакше працювати не буде.
+
+    from abc import ABC, abstractmethod    => необхідно імпортувати для реалізації абстраутних класів
+                                              Абстрактний обєкт , abstractmethod - декоратор.
+                                              ABC - abstract base class
+    class Shape(ABC):                      => створюємо асбстрактний клас
+
+        @abstractmethod                    => ставимо маркери @abstractmethod для ф-й абстрактного класу
+        def area(self):
+            pass
+
+        @abstractmethod                    => ставимо маркери @abstractmethod для ф-й абстрактного класу
+        def perimeter(self):
+            pass
+
+
+    class Triangle(Shape):                    => наслідуємо абстрактний клас
+
+        def __init__(self, a, b, c):          => ініціалізуємо аргументи
+            self.a = a
+            self.b = b
+            self.c = c
+
+        def area(self):                       => повторно прописуємо ф-ї з абстрактного класу. Якщо цього не зробити
+            return self.a * self.b / self.c      наслідування не відбудеться і програма вибє помилку
+
+        def perimeter(self):                  => повторно прописуємо ф-ї з абстрактного класу. Якщо цього не зробити
+            return self.a + self.b + self.c      наслідування не відбудеться і програма вибє помилку
+
+    АНАЛОГІЧНО РОБИМО З НАСТУПНОЮ Ф-Ю ЯКА НАСЛІДУЄ АБСТРАКТНИЙ КЛАС :
+
+    class Rectangle(Shape):
+
+        def __init__(self, a, b):
+            self.a = a
+            self.b = b
+
+        def perimeter(self):
+            return self.a * 2 + self.b * 2
+
+        def area(self):
+            return (self.a + self.b) * 2
+
+    Методи виклику класів :
+    shapes: list[Shape] = [Triangle(1, 2, 3), Rectangle(2, 3), Triangle(4, 5, 6)]
+
+    for shape in shapes:
+        print(shape.area())
+        print(shape.perimeter())
+
+    ----------------------------------------------------------------------------------------------------------
+    ДЕКОРАТОРИ В КЛАСАХ : @staticmethod , @classmethod
+
+    @staticmethod - використовується для ф-й які не працюють з вхідними даними/аргументами класу
+    @classmethod  - використовується для роботи з даними класу
+
+    class User:
+        __count = 0
+
+        def __init__(self, name, age):
+            self.name = name
+            self.age = age
+
+        @staticmethod
+        def greeting():
+            print('Hello')
+
+        @classmethod
+        def get_count(cls):
+            print(cls.__count)
+
+        @classmethod
+        def int_count(cls):
+            cls.__count += 1
+
+    User.greeting()
+    user = User('Max', 15)
+    User.greeting()
+    User.int_count()
+    User.int_count()
+    User.int_count()
+    User.get_count()
+    -------------------------------------------------------------------------------------------------------
+    Метод __new__
+    В даному випадку (прикладі) виористовується для створення класу/класів з одинаковими даними.
+    Тобто , створили user('Max',15) , потім  user2 ( 'Kira' , 21) , тепер вони всі будуть ( 'Kira' , 21)
+    Як воно правильно працює ХЗ , не розібрався.
+
+    class User:
+        __instance = None
+
+        def __new__(cls, *args, **kwargs):
+            if not isinstance(cls.__instance, cls):
+                cls.__instance = super().__new__(cls)
+            return cls.__instance
+
+        def __init__(self, name, age):
+            self.name = name
+            self.age = age
+
+
+    user1 = User('Max', 15)
+    user2 = User('Max', 15)
+    user2.name='Kira'
+
+    print(user1 is user2)
+    print(id(user1))
+    print(id(user2))
+
+    user3 = object.__new__(User)    => а так створиться новий обєкт , з новими значеннями який не буде пересікатись зі старими.
+    user3.name = 'Olha'
+    user3.age = 3
+    print(user1.name)
+    print(user2.name)
+    print(user3.name)
+    -------------------------------------------------------------------------------------------------------------
+    Використання класу як ф-ї
+
+    class A:
+        def __init__(self, value):
+            self.value = value
+
+        def __call__(self, inc):
+            self.value += inc
+
+
+    a = A(5)         => присвоюємо a клас A зі значенням 5
+    a(6)             => в екземпляр класу a додаємо 6  яке додасться до 5
+    print(a.value)
+    -------------------------------------------------------------------------------------------------------------
+    Операції над класами :
+
+    class User:
+     def __init__(self, name, age):
+         self.name = name
+         self.age = age
+
+     def __str__(self):                   => представлення класу при виклику
+         return f'{self.__dict__}'
+
+     def __repr__(self):                  => також, представлення класу при виклику (якщо виводимо класи в масиві)
+         return f'{self.__dict__}'           print ([class1,class2,...,classN]
+         # return self.__str__()
+
+     def __len__(self):                   => поверне довжину name
+         return len(self.name)
+
+     def __add__(self, other):            => додасть дані екземплярів класу
+         return self.age + other.age
+
+     def __sub__(self, other):            => віднімить дані екземплярів класу
+         return self.age - other.age
+
+     def __mul__(self, other):            => помножить дані екземплярів класу
+         return self.age * other.age
+
+     def __lt__(self, other):             => порівняє дані екземплярів класу
+         return len(self.name) < len(other.name)
+
+                                          *** ВАЖЛИВО! В ці математичні операції можна задавати будь-які дії : *,/,+ s  іт.д.
+                                              необовязково що назва функці має відповідати метематичні операції.
+    user = User('Max', 15)
+    user2 = User('Olha', 15)
+    print(user)
+
+    print([user, User('Olha', 15)])
+
+    print(len(user))
+    print(user + user2)
+    print(user - user2)
+    print(user * user2)
+    print(user<user2)
+    ---------------------------------------------------------------------------------------------------------------
+    Створення методів в класах
+
+    class Array:
+    length = 0
+
+    def __init__(self, *args):
+        self.__arr = [*args]
+        Array.length = len(self.__arr)
+
+    def __str__(self):
+        return str(self.__arr)
+
+    def __setitem__(self, key, value):
+        self.__arr[key] = value
+
+    def __getitem__(self, key):
+        return self.__arr[key]
+
+    def push(self, item):
+        self.__arr.append(item)
+        Array.length = len(self.__arr)
+
+    def map(self, cb):
+        return Array(*[cb(item) for item in self.__arr])
+
+    def filter(self, cb):
+        return Array(*[item for item in self.__arr if cb(item)])
+
+
+    array = Array(1, 2, 3, 4)
+    array[2] = 55
+    print(array.length)
+    print(array[0])
+    array.push(88)
+    print(array)
+    print(type(array))
+    array_map = array.map(lambda x: x * 3)
+    print(type(array_map))
+    print(array_map)
+
+    map_filter = array_map.filter(lambda x: x % 2 == 0)
+
+    print(map_filter)
+
+    for i in Array(1, 2, 3, 4):
+        print(i)

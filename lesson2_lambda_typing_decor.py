@@ -66,8 +66,10 @@ def div_num (num):
     for el in str(num):
         if el != '0':
             mass_nums.append(el + '0'*(len(str(num))-1-counter))
-        counter += 1
+            counter += 1
     return '+'.join(mass_nums)
+    #  рішення з курсів :
+    #  return ' + '.join(ch + '0' * (len(st) - i - 1) for i, ch in enumerate(st) if ch != '0') + f' = {st}'
 
 print(div_num(136))
 print(div_num(512))
