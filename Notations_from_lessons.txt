@@ -722,3 +722,281 @@ Clas / КЛАСИ :
 
     for i in Array(1, 2, 3, 4):
         print(i)
+
+#############################################################################################################
+DEBUGER / Дебагер
+
+    1.  Потрібно поставити  мітку звідки запускати дебагер
+        (навпроти необхідного рядкя мишкою клікнути по полю з ліва , має зявитись червона крпака)
+    2.  Далі натиснути зверху на іконку "жука" - запустить дебагер
+    3.  В низк відкриється віконечко дебагера , операції - F8 крок в перед , F7 - якщо на крокі функція - провалюється в неї і далі
+        F8 - покроково. Якщо одразу нажати на ф-ї F8 він її виконає.
+
+#############################################################################################################
+TRY/EXPECT
+
+    try:
+        lksjflksjfd
+    except NameError as err:     - можна відловлювати конкретні помилки - NameError
+        print(str(err))
+
+    print('sdfkhskdf')
+
+    try:                   - можна  "ловити" деквлька помилок , але коли находить її всі наступні пропустить.
+        print(100 /0)      - 1 помилка , на 0 ділити не можна
+        while True:        - 2 помилка , безкінечний уикл , який необхідно перервати ctrl+c
+            pass
+        sdfsdfsf           - 3 помилка , невідоме імя змінної
+
+    except ZeroDivisionError:             - системна назва 1 помилки
+        print("На нуль ділити не можна")
+    except NameError:                     - системна назва 2 помилки
+        print("something wrong")
+    except Exception as err:              - !!! ЯКЩО М И НЕ ЗНАЄМО НАЗВУ СИСТ. ПОМИЛКИ МОЖНА ЗАПИСАТИ ТАК !!!
+        print("other expssssssssssssssssssssssssssssssssssssssssss")
+    else:
+        print("ok")                       - виконується після try/expect в будь-якому випадку
+    finally:                              - виконується після try/expect в будь-якому випадку
+        print("finish")
+    print('sdfkhskdf')
+
+#############################################################################################################
+ГЕНЕРАТОРИ :
+
+    l = [i for i in range(50000000)]  - просте наповнення списку даними
+    input()                             ВЕЛИКИЙ МІНУС - одразу зїдає память (заповнює її створеними елеентами)
+
+    g = (i for i in range(50000000))  - ГЕНЕРАТОР. Це інструкція яка виконується 1 один раз.
+    print(type(g))                    - class <generator>
+
+    for i in g:                       - виведе значення але не буде під них використовувати память
+        print(i)
+
+    Покрокоривий виклик генератора (next)
+
+    print(next(g))                    - виведе 0
+    print('sljdfhskjfhksjhfdjk')      - можна вставити будь-який свій код
+    print(next(g))                    - виведе 1 , і можна так далі
+
+    g = (i for i in range(5))
+    print(next(g))
+    print(next(g))
+    print(next(g))
+    print(next(g))
+    print(next(g))
+    print(next(g))                    - 6 елемента нема буде помилка (можна відловлювати try/expect
+
+    users = [
+        {"name": 'max', 'age': 15},
+        {"name": 'Olha', 'age': 20},
+        {"name": 'IWan', 'age': 25},
+        {"name": 'Kira', 'age': 28},
+        {"name": 'Kamila', 'age': 30},
+    ]
+
+    findUser = next((user for user in users if user['age'] == 45), None)    - можна одразу в змінну записати знайдене значення.
+                                                                              інакше поверне "None" (якщо нема такого).
+                                                                              По суті заміфна ф-ї "find"
+    print(findUser)
+    ------------------------------------------------------------------------------------------------
+    yield  -  затримка виконання АЛЕ НЕ ЗАВЕРШЕННЯ!!!
+
+    def gen(name: str):
+        for ch in name:
+            yield ch
+            print("next")
+
+    g = gen("Max")
+    print(next(g))      - виведе : M
+    print(next(g))      - виведе : M next a
+    print(next(g))      - M next a next x
+    print(next(g))      - M next a next x next
+    print(type(g))      - StopIteration - треба відловлювати try/expect
+    --------------------------------------------------
+    Приклад 2
+
+    def gen():
+        yield 1
+        yield 2
+        yield 3
+        return "sdfsdfsdf"
+
+    g = gen()
+    next(g)      - 1
+    next(g)      - 2
+    print(next(g))      - виведе в консоль 3
+
+    try:                - відловлюємо на СИСТЕМНУ помилку StopIteration
+        next(g)
+    except StopIteration as err:
+        print(err)
+
+    -----------------------------------------------------------
+    Приклад 3 . Генерація імен файлів , значень або назви за допом. yield
+
+    def gen_jpeg_file_name():
+        index = 1
+        while True:
+            yield f'file-{index}.jpeg'
+            index += 1
+    *** При кожному виклику ф-ї буде генеруватись назва файлу : file-1.jpeg, ... , file-n.jpeg
+        Цикл While безкінечний  але його призупиняє yield і викидує з функції.
+        Це типу проміжний return який не завершує функцію , а при повторому виклику переходить до наступного yield або команди
+
+    def my_range(length):
+        count = 0
+        while count < length:
+            yield count
+            count += 1
+
+
+    g = my_range(8)
+    print(next(g))           - прикожному виклику через next буде виводити значення count яке буде збільшуватись на 1
+
+################################################################################################################
+File / Робота з файлами
+
+    file = open('111.txt', 'r')     - артибути 'r' - тільки читання
+                                               'w' - режим запису. !!! Якщо файлу нема - створить , якщо є - ПЕРЕЗАПИШЕ
+                                                     З ВТРАТОЮ ІНФОРМАЦІЇ!!!
+                                               'х' - створити новий файл
+                                               'a' - додати у файл дані
+                                               'r+' - читання файлу з можливістю запису
+                                               'w+' - запис даних у файл + читання. !!! Якщо файлу нема - створить ,
+                                                      якщо є - ПЕРЕЗАПИШЕ З ВТРАТОЮ ІНФОРМАЦІЇ!!!
+                                               !!! Якщо невказувати атрибут , по замовчуванню буде 'r'
+
+    file.close()       - по завершенню роботи з файлам ОБОВЯЗКОВО його закривати !!!
+
+    file.read()        - читає повність весь зміст файлу
+    file.readline()    - порядкове читання
+    file.write('hi\n') - запис даних у файл. \n переведе на новий рядок
+    file.writelines(['first\n', 'second\n'])    - запис декількох стрічок
+
+    -------------------------------------------------------------------------------------------------------
+    try/expect на відкриття файлу
+
+    *** стара форма первірки на відкриття :
+    try:
+        file = open('111.txt', 'r')
+        try:
+            read = file.read()
+            print(read)
+        except Exception as err:
+            print(err)
+
+    *** нова форма з 'with'
+    try:
+        with open('111.txt', 'w') as file:
+            print(file.read())
+            ...                              - блок операцій з файлом (читання , запис і т.д.)
+            ...                                це можна робити тут.
+            ...                                file.close() - тут використовувати не обовязково with його сам закриє по завершенню блоку
+
+    except Exception as err:
+        print(err)
+
+    ----------------------------------------------------------------------------------------------------------
+    JSON / Запис - Читання у файл
+
+    import json                                 -  підключення бібліотеки
+
+    user = {"name": "max", "age": 15}
+
+    try:                                        - записуємо у файл user  у форматі json
+        with open('users.json', 'w') as file:
+        json.dump(user, file)
+
+    except Exception as err:
+        print(err)
+
+    try:                                        - читаємо json стрічку з файлу і переводимо її у dict
+        with open('users.json') as file:
+            user = json.load(file)
+            print(user['age'])
+
+    except Exception as err:
+        print(err)
+
+    ------------------------------------------------------------------------------------------------------------
+    PICKLE  - запис даних в бінарному коді , записувати можна будь що , навіть ф-ю def
+
+    import pickle
+
+    def show():
+        print('hello')
+
+    try:
+        with open('users.db', 'wb') as file:    - записуємо 'wb'у файл users.db , якщо його нема - створить
+        pickle.dump(show, file)                 - записуємо ф-ю def show()
+
+    except Exception as err:
+        print(err)
+
+    try:
+        with open('users.db', 'rb') as file:    - читаємо з файлу бінарний код (в даному випадку була передана функція def show())
+            a = pickle.load(file)               - отримуємо функцію def show()
+            a()                                 - викликаємо def show()
+
+    except Exception as err:
+        print(err)
+
+    ------------------------------------------------------------------------------------------------------------
+    PRINT - запис у файл
+
+    try:
+        with open('test.txt', 'w') as file:
+            print('Hello1', file=file)
+            print('Hello2', file=file)
+            print('Hello3', file=file)
+    except Exception as err:
+    print(err)
+
+######################################################################################################################
+
+    MATCH  (switch/case js)
+
+    choice = input('Enter num: ')       - приклад класичного (switch/case js)
+
+    match choice:
+        case '1':
+            print(1)
+        case '2':
+            print(2)
+        case _:
+            print('default')
+
+    -------------------------------------------------------------------------------------------------------
+    Другий приклад.
+    Використання match з даними зі списку
+
+    p = ['left', '200', 33]            - список
+
+    match p:
+        case 'left' as action, value:               - якщо пергий елемент 'left' , тоді ми зчитуємо 'left' та "200" (action, value)
+            print(f'{action=} {value=}')
+
+        case 'left'|'top' as action, value, other:  - якщо пергий елемент 'left' або другий 'top' , тоді ми
+            print(action, value, other)               зчитуємо 'left',"200","33" (action, value, other)
+
+        case _:                                     - якщо в списку не буде жодного значення яке ми шукаємо - видасть default
+            print("default")
+
+    ----------------------------------------------------------------------------------------------------------
+    Використання matc у ф-ях :
+
+    karina = {"name": "Karina", "age": 5}
+    max = User("Max", 3)
+
+    def matcher(item: User | dict):         - вказуємо що приймаємо як аргумент dict або class
+        match item:                         - matc САМ перевірить до якого типу відноситься агрумент і підбере case
+                                              В саse можна поставити ще додаткові умови відбору : по іменам , віку , будь-чому
+
+            case User(name='Max' | 'olha' as name, age=3 | 16 | 18 as age) if len(name) != age:
+                print(name, age)
+            case {'age': int(age)} if age in range(1, 6):
+                print(age)
+            case _:
+                print('default')
+
+    matcher(karina)
