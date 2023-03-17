@@ -39,23 +39,45 @@ except Exception as err:
 
 import json
 
-shopping_list: list[dict] = []
 
 class Get_shop:
-    def __init__(self, name, coast):
+    def __init__(self, name, coast, id):
         self.name = name
         self.coast = coast
+        self.id = id
+
+def write_file(file_name,list):
+    try:
+        with open(file_name, 'w') as file:
+            json.dump(list, file)
+
+    except Exception as err:
+        print(err)
 
 
-shopping_element = {}
+
+def read_file(file_name):
+    try:
+        with open(file_name, 'r') as file:
+            data = json.load(file)
+
+    except Exception as err:
+        write_file('shopping_book.txt',shopping_list)
+
+    return data
+
+shopping_list = []
 choice = '0'
 
 while choice != '6':
 
-    print('Оберіть будь-ласка опцію :  \n'
-          '1. Додати купівлю           \n'
-          '2. Вивід куплених речей     \n'
-          '3. Пошук (назва,вартість,id \n'
+    shopping_list = read_file('shopping_book.txt')
+    shopping_element = {}
+
+    print('Оберіть будь-ласка опцію :   \n'
+          '1. Додати купівлю            \n'
+          '2. Вивід куплених речей      \n'
+          '3. Пошук (назва,вартість,id) \n'
           '4. Найдорожча купівля \n'
           '5. Видалення по id    \n'
           '6. Вихід              \n')
@@ -70,26 +92,21 @@ while choice != '6':
                 product_name = input('Введіть назву купівлі : ')
                 product_coast = int(input('Введіть вартість купівлі : '))
 
-                shopping_element = Get_shop(product_name, product_coast)
+                if len(shopping_list) == 0:
+                    product_id = 1
+                else:
+                    product_id = product_id + shopping_list[-1]['id']
+
+                shopping_element = Get_shop(product_name, product_coast, product_id)
                 shopping_list.append(shopping_element.__dict__)
 
-                try:
-                     with open('shopping_book.txt', 'w') as file:
-                         json.dump(shopping_list, file)
-
-                except Exception as err:
-                     print(err)
+                write_file('shopping_book.txt',shopping_list)
 
                 choice_shop = input('Додати ще купівлю ? (y/n) : ')
 
         case '2':
-            try:
-                with open('shopping_book.txt', 'r') as file:
-                    shopping_list = json.load(file)
-                    print(shopping_list)
 
-            except Exception as err:
-                print(err)
+            print(shopping_list)
 
         case _:
             pass
