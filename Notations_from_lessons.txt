@@ -93,6 +93,9 @@ dict методи :
     for key,value in users.items() :
         print(key,value)
 
+    setattr(user, k, v) - застовує нові атрибути key i value до обєкту, можна застосовувати в циклі , або окермою командою
+                          for key,value in user.items() :
+                              setattr(user, k, v)  - k , v нові значення
     user.get('key', 55) - отримання значення за ключем, якщо такого ключа нема , поверне значення другого аргументу(55)
     del user[key]       - видалення значення за ключем
     pop = user.pop('key', 55) - видалить дані за ключем, поверне key. Другий параметр вказується для повернення 55
@@ -108,6 +111,8 @@ dict методи :
     user.update({'street':'street'}) - додасть нову пару key:value
                                        або скорочено через пайпу
                                        user |= {'street': 'street'}
+    model_to_dict(value) - кнвертує value в dict , необхідно підключити бібліотеку
+                           from django.forms import model_to_dict
     Фішки :
     dict1 = {'NaMe': 'Max', 'aGe': 19}
     res = {k.lower(): v for k, v in dict1.items()} => res ={'name':'Max' ,'age':19}
@@ -1000,3 +1005,29 @@ File / Робота з файлами
                 print('default')
 
     matcher(karina)
+
+########################################################################################################################
+Бібліотека os
+
+import os
+
+    print(os.uname())           - виводить інформацію про операційну систему
+    print(os.environ)           - показує змінні системи
+    os.system('htop')           - можна запускати коменди операційної системи
+
+    print(os.getcwd())          - відобразить поточний шлях файлу який ми запускаємо C:\Users\glili\PycharmProjects\pythonProject
+    os.mkdir('first')           - створить директорію в поточній папці
+    os.mkdir('second')          - аналогічно
+
+    -------------------------------------------------------------------------------------------------------
+    c:\folder1\folder2\         - відображення шляху на відновся
+         /folder1/folder2       - відображення шляху на лінокс
+    path = os.path.join('folder1', 'folder2', '111.txt')    - path відобразить правильно шлях враховуючи систему на якій він запускається
+    print(path)
+    -------------------------------------------------------------------------------------------------------
+
+    for root, folders, files in os.walk('.'):       - walk дозволяє показати папки та файли в директорії
+        print(f'{root=} {folders=} {files=}')         walk('.')  - поточна директорія
+
+    os.rename('os_test.py', 'os_test2.py')                           - перейменування файлу
+    os.rename('os_test2.py', os.path.join('first', 'os_test.py'))    - переміщення файлу в папку first і перейменування його на os_test.py
